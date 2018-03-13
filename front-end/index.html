@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+</head>
+
+<body>
+<img src="amazon.jpg" alt="Amazon" style="width:350px;height:120px;">
+    
+    <div ng-app="myApp" ng-controller="myCtrl">
+
+    <form id="iphone" ng-submit="PaywithCrypto()">
+        <h2>Iphone 7</h2>
+            <img src="iphone.png" alt="Iphone">
+            <table>
+                <tr>
+                    <td><label>Price: USD 649</label></td>
+                </tr>
+            </table>
+            <input type="submit" id="submit" value="Pay with Ether">
+        </form>
+
+        </br>
+        <form id="userdetails" ng-submit="CryptoToUSD()">
+            <table>
+                <tr>
+                    <td><label>Convert Live USD to ETH: </label></td>
+                    <td><input type="text" ng-model="testing"/></td>
+                    <td><input type="submit" id="submit" value="Live Testing"></td>
+                </tr>
+            </table>
+        </form>
+
+        </br>
+        <form id="userdetails" ng-submit="CheckUBalance()">
+            <table>
+                <tr>
+                    <td><input type="submit" id="submit" value="Check User Balance"></td>
+                </tr>
+            </table>
+        </form>
+
+        <form id="userdetails" ng-submit="CheckCBalance()">
+            <table>
+                <tr>
+                    <td><input type="submit" id="submit" value="Check Crypto Balance"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+</body>
+</html>
+
+<script>
+
+    var app = angular.module('myApp', []);
+    app.controller('myCtrl', ['$scope', '$http', '$window', function ($scope, $http, $window) {
+        
+        $scope.CryptoToUSD = function () {    
+            var usprice = $scope.testing;       
+            $http({
+                url: 'https://cex.io/api/ticker/ETH/USD',
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function (httpResponse) {                
+
+                window.alert("ETH : " + usprice/httpResponse.data.last);
+                console.log('response:', httpResponse);
+            })      
+        }
+
+
+        $scope.CheckUBalance = function () {    
+            var usprice = $scope.testing;       
+            $http({
+                url: 'http://bayar6.eastus.cloudapp.azure.com/strato-api/eth/v1.2/account?address=e6d2bdeb2860521c3285659def22944a44939ece',
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function (httpResponse) {                
+
+                console.log('response:', httpResponse);
+                window.alert("User: " + httpResponse.data[0].balance/10000000000000000);
+                
+            })      
+        }
+
+        $scope.CheckCBalance = function () {    
+            var usprice = $scope.testing;       
+            $http({
+                url: 'http://bayar6.eastus.cloudapp.azure.com/strato-api/eth/v1.2/account?address=13bc57d6cc96170e8eb48f8fa51fbbe57e754628',
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function (httpResponse) {                
+
+                console.log('response:', httpResponse);
+                window.alert("Cryptopal : " + httpResponse.data[0].balance/10000000000000000);
+                
+            })      
+        }
+
+        $scope.PaywithCrypto = function () {    
+            var price = 649;
+
+            $http({
+
+                url: 'https://cex.io/api/ticker/ETH/USD',
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function (httpResponse) {                
+
+                //window.alert("ETH : " + usprice/httpResponse.data.last);
+                console.log('response:', httpResponse);
+
+                var etherprice = (price/httpResponse.data.last)*10000000000000000;
+                var wei = etherprice*10000000000000000;
+
+                var Indata = {'password':"1234", 'resolve': true, 'contracts': [{
+                "contractName": "Payment",
+                "args": {
+                "amount": 649,
+                "totalAmount": wei
+                }
+            }]};
+
+
+
+            var Indata1 = {
+                "password" : "1234",
+                "method" : "initiatePayment",
+                "args": {},
+                "value" : etherprice
+            }
+
+
+                $http({
+                url: 'http://bayar6.eastus.cloudapp.azure.com/bloc/users/cryptopal/13bc57d6cc96170e8eb48f8fa51fbbe57e754628/uploadList',
+                method: 'POST',
+                data: Indata,                
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function (httpResponse) {           
+
+                    $http({
+                    url: 'http://bayar6.eastus.cloudapp.azure.com/bloc/users/kishan/e6d2bdeb2860521c3285659def22944a44939ece/contract/Payment/ac2c63e654a262cf4b0088b9184c11a69be0c652/call',
+                    method: 'POST',
+                    data: Indata1,                
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (httpResponse) {           
+
+
+                    $http({
+                    url: 'http://bayar6.eastus.cloudapp.azure.com/bloc/users/kishan/e6d2bdeb2860521c3285659def22944a44939ece/contract/Payment/ac2c63e654a262cf4b0088b9184c11a69be0c652/call',
+                    method: 'POST',
+                    data: Indata1,                
+                    headers: { 'Content-Type': 'application/json' }
+                    }).then(function (httpResponse) {           
+
+                    console.log('response:', httpResponse);
+                    });
+
+                    console.log('response:', httpResponse);
+                });
+
+                console.log('response:', httpResponse);
+            });
+
+            });
+            
+        }
+
+    }]);
+</script>

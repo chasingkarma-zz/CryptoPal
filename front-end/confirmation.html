@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+</head>
+
+<body>
+<img src="amazon.jpg" alt="Amazon" style="width:350px;height:100px;">
+    
+    <div ng-app="myApp1" ng-controller="myCtrl">
+
+        <form id="iphone" ng-submit="PaywithCrypto()">
+            <h2>Order - Confirmation</h2>
+            <img src="iphone.png" alt="Iphone">
+            <table>
+                <tr>
+                    <td><label>Price: USD 649</label></td>
+                </tr>
+            </table>
+            <input type="submit" id="submit" value="Pay with Ether">
+        </form>
+
+        </br>
+        <form id="userdetails" ng-submit="CryptoToUSD()">
+            <table>
+                <tr>
+                    <td><label>Convert Live USD to ETH: </label></td>
+                    <td><input type="text" ng-model="testing"/></td>
+                    <td><input type="submit" id="submit" value="Live Testing"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+</body>
+</html>
+
+<script>
+
+    var app = angular.module('myApp1', []);
+    app.controller('myCtrl', ['$scope', '$http', '$window', function ($scope, $http, $window) {
+        
+        $scope.CryptoToUSD = function () {    
+            var usprice = $scope.testing;       
+            $http({
+                url: 'https://cex.io/api/ticker/ETH/USD',
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function (httpResponse) {                
+
+                window.alert("ETH : " + usprice/httpResponse.data.last);
+                console.log('response:', httpResponse);
+            })      
+        }
+
+    }]);
+</script>
